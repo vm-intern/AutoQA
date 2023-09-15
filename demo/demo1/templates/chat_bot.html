@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+    #chatbox {
+        height: 400px;
+        overflow-y: scroll;
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .message {
+        margin-bottom: 10px;
+    }
+    .user-icon, .ai-icon {
+        font-size: 40px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+    }
+    
+    .ai-icon {
+        background-size: cover;  /* 或 use 'contain' 根据需要 */
+        background-position: center center;
+    }
+
+    
+    .user-message {
+        background-color: #e6e6e6;
+        padding: 10px;
+        border-radius: 10px;
+        display: inline-block;
+        margin-left: 10px;
+    }
+
+    .ai-message {
+        background-color: #d9f7ff;
+        padding: 10px;
+        border-radius: 10px;
+        display: inline-block;
+        margin-right: 10px;
+    }
+
+    .input-group .form-control {
+        border-radius: 0;
+        border-right: 0;
+        height: 50px;  /* Increase the height of the input box */
+    }
+
+    .send-button {
+        text-align: right;
+        margin-top: 10px;
+    }
+</style>
+
+<div class="container mt-5">
+    <div id="chatbox"></div>
+
+    <div class="mt-3">
+        <input type="text" class="form-control" id="userInput" placeholder="Type your message...">
+        <div class="send-button" >
+            <a class="btn btn-primary mt-2" onclick="clearMessage()" href="/chatbot/" >Clear</a>
+        </div>
+        <div class="send-button">
+            <button class="btn btn-primary mt-2" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var userChatHistory = []
+    var botChatHistory = []
+
+    function sendMessage() {
+        const input = document.getElementById('userInput');
+        const chatbox = document.getElementById('chatbox');
+        addUserMessage(input.value)
+        localStorage.setItem('userChatHistory', JSON.stringify(userChatHistory));
+    
+        // Append user message
+        const userDiv = document.createElement('div');
+        userDiv.classList.add('message', 'text-right');
+        userDiv.innerHTML = `
+            <div class="user-message">${input.value}</div>
+            <span class="user-icon bi bi-person-circle"></span>
+            <div class="clearfix"></div>
+        `;
+        chatbox.appendChild(userDiv);
+    
+        // Use AJAX to send user input to the backend
+        fetch('/chatbot/chat/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'text/plain'
+            },
+            body: input.value
+        })
+
+
+        .then(response => response.text())
+        .then(aiResponse => {
+            // Append AI message with the response from the backend
+            const aiDiv = document.createElement('div');
+            aiDiv.classList.add('message', 'text-left');
+            aiDiv.innerHTML = `
+                <div class="ai-message">${aiResponse}</div>
+                <div class="clearfix"></div>
+            `;
+            chatbox.appendChild(aiDiv);
+            addBotMessage(aiResponse);
+            localStorage.setItem('botChatHistory', JSON.stringify(botChatHistory));
+            //console.log(botChatHistory + "*");
+            // Scroll to bottom
+            chatbox.scrollTop = chatbox.scrollHeight;
+        });
+    
+        // Clear input
+        input.value = '';
+    }
+
+    function showOpeningMessage() {
+        const chatbox = document.getElementById('chatbox');
+        var storedBotChatHistory = localStorage.getItem('botChatHistory');
+        var storedUserChatHistory = localStorage.getItem('userChatHistory');
+        if (storedBotChatHistory) {
+            botChatHistory = JSON.parse(storedBotChatHistory);
+        }
+        var storedUserChatHistory = localStorage.getItem('userChatHistory');
+        if (storedUserChatHistory) {
+            userChatHistory = JSON.parse(storedUserChatHistory);
+        }
+        console.log(userChatHistory);
+
+        var aiDiv = document.createElement('div');
+        aiDiv.classList.add('message', 'text-left');
+        aiDiv.innerHTML = `
+        <div class="ai-message">请提问。</div>
+        <div class="clearfix"></div>
+         `;
+        chatbox.appendChild(aiDiv);
+
+        if(botChatHistory.length > 0){
+
+            for(let i = 0; i < botChatHistory.length; i++){
+                userDiv = document.createElement('div');
+                userDiv.classList.add('message', 'text-right');
+                userDiv.innerHTML = `
+                    <div class="user-message">${userChatHistory[i]}</div>
+                    <span class="user-icon bi bi-person-circle"></span>
+                    <div class="clearfix"></div>
+                `;
+                chatbox.appendChild(userDiv);
+
+                var aiDiv = document.createElement('div');
+                aiDiv.classList.add('message', 'text-left');
+                aiDiv.innerHTML = `
+                <div class="ai-message">${botChatHistory[i]}</div>
+                <div class="clearfix"></div>
+                `;
+                chatbox.appendChild(aiDiv);
+
+            }
+        }
+
+
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Search for the cookie with the given name
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function addUserMessage(message){
+        userChatHistory.push(message)
+    }
+
+    function addBotMessage(message){
+        botChatHistory.push(message)
+    }
+
+    function clearMessage(){
+        console.log("clear success")
+        localStorage.setItem('userChatHistory', []);
+        localStorage.setItem('botChatHistory', []);
+    }
+
+
+    // Call the function when the page loads
+    window.onload = showOpeningMessage;
+</script>
+{% endblock %}

@@ -1,0 +1,7 @@
+Django~=4.2.5
+pypdf~=3.16.0
+EbookLib~=0.18
+beautifulsoup4~=4.12.2
+langchain~=0.0.288
+torch~=2.0.1
+transformers~=4.33.1

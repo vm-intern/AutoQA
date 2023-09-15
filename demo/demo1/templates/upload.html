@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+
+<body>
+    <h1>Upload Files</h1>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button id="upload-button" type="submit">Upload</button>
+        <div id="messageDiv"></div>
+    </form>
+
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %} style="color: red;">{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+</body>
+{% endblock %}
