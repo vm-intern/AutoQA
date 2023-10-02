@@ -5,7 +5,7 @@ from django.contrib import messages
 from .forms import FileUploadForm
 from .tools.fileReader import read_files
 import sys
-sys.path.append('/home/vcp/demo/demo1/')
+sys.path.append('demo1')
 from apps import bot
 # Create your views here.
 

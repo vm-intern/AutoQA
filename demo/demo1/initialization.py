@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/home/vcp/demo/QA_version_1')
+sys.path.append('QA_version_1')
 from QA_version_1.agent import *
 
 bot = None

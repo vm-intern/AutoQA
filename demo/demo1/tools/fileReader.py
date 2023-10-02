@@ -7,7 +7,7 @@ import ebooklib
 from bs4 import BeautifulSoup
 from ebooklib import epub
 import sys
-sys.path.append('/home/vcp/demo/demo1/')
+sys.path.append('demo1')
 from apps import bot
 
 def read_docx(file):

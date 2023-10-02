@@ -4,12 +4,15 @@ import torch
 from typing import Any
 from transformers import AutoModelForCausalLM, pipeline, AutoTokenizer
 from langchain.llms import HuggingFacePipeline
+from langchain.chat_models import ChatOpenAI
 
 def get_model(model_name: str) -> Any:
     if model_name == "chatglm":
         return load_chatglm_model()
     elif model_name == "baichuan2":
         return load_baichuan2_model()
+    elif model_name == "baichuan2_13b":
+        return load_baichuan2_13bmodel()
     else:
         pass
 
@@ -41,3 +44,6 @@ def load_baichuan2_model(model_path="/home/vcp/taoran/baichuan2-7B-base/", max_l
     )
     llm = HuggingFacePipeline(pipeline=pipe)
     return llm
+
+def load_baichuan2_13bmodel():
+    return ChatOpenAI(openai_api_key="xxx", openai_api_base="xxx", model_name="baichuan-13b-chat")

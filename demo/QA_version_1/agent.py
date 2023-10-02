@@ -1,4 +1,6 @@
 from typing import Any
+import sys
+sys.path.append("QA_version_1")
 from load_chatmodel import *
 from utils import *
 from load_embeddingmodel import get_embedding
@@ -20,7 +22,7 @@ class botv1(object):
                                                    chunk_overlap=self.chunk_overlap)
 
     # get or create new DB
-    def updatedb_from_string(self, string: str, filename: str) -> Any:
+    def updatedb_from_string(self, string: str, filename="default") -> Any:
         metadata = {"source": filename}
         if not hasattr(self, "database"):
             self.database = string2chroma(string=string, 
@@ -45,7 +47,7 @@ class botv1(object):
     
     # chat with model
     def chat(self, text: str):
-        return self.model(text)
+        return self.model.predict(text)
     
     def react(self, query: str):
         if "根据文档" in query:
