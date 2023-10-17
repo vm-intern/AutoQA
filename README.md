@@ -19,5 +19,9 @@ pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 python manage.py runserver 127.0.0.1:8000
 `
 
+# Use case
+In this project, there're two methods to response. The first one is response the query directly by the llm, and the other one is response the query based on the documents.
+In order to utilize the information in the documents, you should input your query like "根据文档: your query". This code will try to find whether "根据文档" is contained in the query to switch the two mode.
+
 # Problem
 1. warnings about VectorDBQA can be ignore.
