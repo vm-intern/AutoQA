@@ -22,8 +22,8 @@ class botv1(object):
                                                    chunk_overlap=self.chunk_overlap)
 
     # get or create new DB
-    def updatedb_from_string(self, string: str, filename="default") -> Any:
-        metadata = {"source": filename}
+    def updatedb_from_string(self, string: str, ID="default") -> Any:
+        metadata = {"id": ID}
         if not hasattr(self, "database"):
             self.database = string2chroma(string=string, 
                                           embedding=self.embedding, 
@@ -38,12 +38,13 @@ class botv1(object):
         self.qa = get_QA(chat_model=self.model, 
                             database=self.database, 
                             chain_type=self.chain_type)
-    def delete():
+    def delete(self):
         pass
 
     # chat with file
     def file_based_qa(self, query: str) -> Any:
-        return query2QA(self.qa, query)
+        # return query2QA(self.qa, query)
+        return dbqa(self.model, self.database, query)
     
     # chat with model
     def chat(self, text: str):
@@ -55,6 +56,6 @@ class botv1(object):
         else:
             return self.chat(query)
 
-    def delete_by_name(self, filename: str):
-        self.database.delete(self.database.get(where={"source": filename})["ids"])
+    def delete_by_id(self, ID: str):
+        self.database.delete(self.database.get(where={"source": ID})["ids"])
     

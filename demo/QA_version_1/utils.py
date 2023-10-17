@@ -41,7 +41,7 @@ def get_QA(chat_model, database, chain_type="stuff"):
 
 
 def query2QA(qa, query):
-    result = qa({"query": query})
+    result = qa({"query": query}, k=10)
     txt = ""
     txt += result["result"] + "\n"
     source = result["source_documents"]
@@ -49,3 +49,25 @@ def query2QA(qa, query):
         txt += "原文：" + item.page_content
         # txt += "出处：" + item.metadata["source"]
     return txt
+
+
+def dbqa(llm, db, query, k=4, threshold=0):
+    query_results = db.similarity_search_with_score(query, k=k)
+    reference = []
+    question = "根据以下文档：\n"
+    reference_id = []
+    for i in range(len(query_results)):
+        item = query_results[i]
+        if item[1] >= threshold:
+            reference.append(item[0].page_content)
+            question += item[0].page_content + "\n"
+            reference_id.append(item[0].metadata["id"])
+
+    question += f"回答问题:{query}"
+    result = llm.predict(question)
+    for i in range(len(reference)):
+        result += f"\n原文:{reference[i]} id:{reference_id[i]} "
+    return result
+
+
+
